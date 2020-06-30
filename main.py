@@ -42,6 +42,18 @@ def cmd_mqtt_pub(params):
     print(f"Publishing '{params[1]}' to '{params[0]}'")
     mqtt.send_msgs([params[0]], params[1])
 
+def cmd_list(params):
+    for key, value in mqtt.devices.items():
+        print(f"{key:12s} {value.func:10s} {value.name}")
+            
+
+def cmd_add_device(params):
+    if len(params) != 3:
+        print("Usage:\nadd <uid> <function> <name>")
+        return
+    
+    mqtt.add_device(params[0], params[1], params[2])
+    
 def cmd_mqtt_ping(params):
     if len(params) != 1:
         print("Usage:\nping <uid>\nping all")
@@ -59,7 +71,7 @@ def cmd_mqtt_ping(params):
             print(f"{uid} Unknown device")
 
     if params[0] == "all":
-        for uid in mqtt_wrap.devices:
+        for uid in mqtt.devices:
             ping(uid)
     else:
         ping(params[0])
@@ -126,6 +138,8 @@ commands = {
     "ping": (cmd_mqtt_ping, "Test connection to device"),
     "write": (cmd_write_file, "Write file to a device"),
     "read" : (cmd_read_file, "Read file from device"),
+    "add" : (cmd_add_device, "Add temporary device ID"),
+    "list": (cmd_list, "List all devices"),
 }
 
 def run_commad(cmd):
