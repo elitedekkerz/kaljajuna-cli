@@ -1,3 +1,4 @@
+import sys
 import shlex
 import mqtt_wrap
 from prompt_toolkit import PromptSession
@@ -139,14 +140,21 @@ def run_commad(cmd):
 
 
 if __name__ == "__main__":
-    mqtt = mqtt_wrap.mqtt("localhost")
-    #mqtt = mqtt_wrap.mqtt("10.0.0.4")
+    #mqtt = mqtt_wrap.mqtt("localhost")
+    mqtt = mqtt_wrap.mqtt("10.0.0.10")
 
-    p = PromptSession()
+    if len(sys.argv) == 1:
+        p = PromptSession()
 
-    while not exit_program:
-        cmd = p.prompt("> ")
-        run_commad(cmd)
+        while not exit_program:
+            cmd = p.prompt("> ")
+            run_commad(cmd)
+    else:
+        cmd = sys.argv[1]
+        args = sys.argv[2:]
+        print(f"Running command {cmd} {args}")
+        commands[cmd][0](args)
+
 
     print("Bye")
 
