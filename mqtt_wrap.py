@@ -10,13 +10,6 @@ class device:
         self.name = name
         self.func = func
 
-devices = {
-    "00ff00ff" : device("train", "netlin juna"),
-    "abbaabba" : device("hopper", "kaljaaaaa"),
-    "deadbeef" : device("hopper", "jallua"),
-    "94b91400" : device("switch", "Testi vaihde"),
-}
-
 class mqtt:
     def __init__(self, ip="localhost"):
         log.info("creating new instance")
@@ -26,18 +19,28 @@ class mqtt:
         log.info("Connected")
         self.mqtt.loop_start()
 
+        self.devices = {
+            "bb543900" : device("train", "netlin juna"),
+            "886e8000" : device("hopper", "kaljaaaaa"),
+            "deadbeef" : device("hopper", "jallua"),
+            "94b91400" : device("switch", "Testi vaihde"),
+        }
+
+    def add_device(self, uid, func, name):
+        self.devices.update({uid: device(func,name)})
+
     def gen_topic_list(self, uid=None, name=None, topic=None):
         t = []
         topic = "/" + topic if topic else ""
 
         #If uid is empty send to all devices
         if uid == None:
-            for key, value in devices.items():
+            for key, value in self.devices.items():
                 t.append(f"{key}/{value.func}{topic}")
 
         #If name is empty populate it automatically 
         elif name == None:
-            t = [f"{uid}/{devices[uid].func}{topic}"]
+            t = [f"{uid}/{self.devices[uid].func}{topic}"]
         else:
             t = [f"{uid}/{name}{topic}"]
 
@@ -48,7 +51,7 @@ class mqtt:
 
         #If name is empty populate it automatically 
         if name == None:
-            return f"{uid}/{devices[uid].func}{topic}"
+            return f"{uid}/{self.devices[uid].func}{topic}"
         else:
             return f"{uid}/{name}{topic}"
 
