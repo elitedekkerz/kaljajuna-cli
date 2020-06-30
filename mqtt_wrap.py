@@ -19,12 +19,11 @@ class mqtt:
         log.info("Connected")
         self.mqtt.loop_start()
 
-        self.devices = {
-            "bb543900" : device("train", "netlin juna"),
-            "886e8000" : device("hopper", "kaljaaaaa"),
-            "deadbeef" : device("hopper", "jallua"),
-            "94b91400" : device("switch", "Testi vaihde"),
-        }
+        self.devices = {}
+        self.add_device("bb543900", "train", "netlin juna")
+        self.add_device("886e8000", "hopper", "kaljaaaaa")
+        self.add_device("94b91400", "switch", "Testi vaihde")
+        self.add_device("deadbeef", "hopper", "jallua")
 
     def add_device(self, uid, func, name):
         self.devices.update({uid: device(func,name)})
