@@ -63,7 +63,7 @@ class mqtt:
         for topic in topic_list:
             self.send_msg(topic, msg)
 
-    def _wait_msg(self, topic, timeout=1):
+    def wait_msg(self, topic, timeout=1):
         reply = ""
         done = False
         def __wait_callback(client, userdata, message):
@@ -92,9 +92,9 @@ class mqtt:
         response = []
         for a in zip(topic_list, resp_topic_list):
             self.send_msg(a[0], msg)
-            response.append(self._wait_msg(a[1], timeout))
+            response.append(self.wait_msg(a[1], timeout))
         return response
 
     def send_and_wait(self, topic, msg, resp_topic, timeout=1):
         self.send_msg(topic, msg)
-        return self._wait_msg(resp_topic, timeout)
+        return self.wait_msg(resp_topic, timeout)
