@@ -1,3 +1,4 @@
+import re
 import sys
 import time
 import paho.mqtt.client
@@ -72,13 +73,20 @@ class mqtt:
         for topic in topic_list:
             self.send_msg(topic, msg)
 
-    def wait_msg(self, topic, timeout=1):
+    def wait_msg(self, topic, timeout=1, msg_filter=None):
         reply = ""
         done = False
+        mf = re.compile(msg_filter) if msg_filter else None
+
         def __wait_callback(client, userdata, message):
-            nonlocal reply, done
-            reply = message.payload
-            done = True
+            nonlocal reply, done, mf
+            data = message.payload.decode()
+            if mf is None:
+                reply = data
+                done = True
+            elif mf.match(data):
+                reply = data
+                done = True
 
         topic = self._replace_topic_wildcards(topic)
         self.mqtt.subscribe(topic)
@@ -91,7 +99,7 @@ class mqtt:
                 raise TimeoutError()
 
         self.mqtt.unsubscribe(topic)
-        return reply.decode()
+        return reply
 
     def sub(self, uid, name, topic, callback):
         t = f"{uid}/{name}/{topic}"
