@@ -15,6 +15,7 @@ import mqtt_wrap
 import docopt
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
+from prompt_toolkit.completion import NestedCompleter
 
 mqtt = None
 exit_program = False
@@ -160,6 +161,24 @@ def run_commad(cmd):
     except KeyError:
         print(f"Command not found: {cmd}")
 
+def get_completer():
+
+    topics = {f"{k}":None for (k,v) in mqtt.devices.items()}
+    topics_long = {f"{k}/{v.func}/":None for (k,v) in mqtt.devices.items()}
+
+    completer = NestedCompleter.from_nested_dict({
+        "help" : None,
+        "exit" : None,
+        "pub" : topics_long,
+        "ping" : {**{"all":None}, **topics},
+        "write" : topics,
+        "read" : topics,
+        "add" : None,
+        "list" : None,
+        "kaljaa" : None,
+    })
+
+    return completer
 
 if __name__ == "__main__":
     args = docopt.docopt(__doc__)
@@ -173,7 +192,10 @@ if __name__ == "__main__":
         run_commad(args["<command>"])
 
     else:
-        p = PromptSession(history=FileHistory('./kaljajuna_cli_history.txt'))
+        p = PromptSession(
+            history=FileHistory('./kaljajuna_cli_history.txt'),
+            completer=get_completer(),
+            )
 
         while not exit_program:
             cmd = p.prompt("> ")
