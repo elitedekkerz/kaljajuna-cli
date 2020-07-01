@@ -33,7 +33,7 @@ class mqtt:
         parts = topic.split("/")
         uid = parts[0]
 
-        if parts[1] == "+":
+        if len(parts) > 1 and parts[1] == "+":
             parts[1] = self.devices[uid].func
 
         return "/".join(parts)            
