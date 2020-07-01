@@ -14,6 +14,7 @@ import shlex
 import mqtt_wrap
 import docopt
 from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
 
 mqtt = None
 exit_program = False
@@ -177,7 +178,7 @@ if __name__ == "__main__":
         run_commad(args["<command>"])
 
     else:
-        p = PromptSession()
+        p = PromptSession(history=FileHistory('./kaljajuna_cli_history.txt'))
 
         while not exit_program:
             cmd = p.prompt("> ")
