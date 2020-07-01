@@ -13,6 +13,7 @@ import sys
 import shlex
 import mqtt_wrap
 import docopt
+import time
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.completion import NestedCompleter
@@ -136,17 +137,49 @@ def cmd_read_file(params):
     uid, remote, local = params
     read_file(uid, local, remote)
   
+def cmd_kaljaa(params):
+    def move_train(train_uid, steps):
+        mqtt.send_msg(f"{train_uid}/+/move", str(steps))
+        mqtt.wait_msg(f"{train_uid}/+/status", timeout=20, msg_filter="stopped")
+
+    #Find a train
+    train_uid = "bb543900"
+
+    #Find a hopper
+    hopper_uid = "886e8000"
+    
+    #Find a route to hopper
+    steps_to_hopper = 2
+    
+    #Goto hopper station
+    print(f"Train moving to hopper {mqtt.get_device_name(hopper_uid)}")
+
+    mqtt.send_msg(f"{train_uid}/+/speed", "-0.5")
+    move_train(train_uid, steps_to_hopper)
+
+    #move_train(train_uid, steps_to_hopper)
+
+    #Dispense beer
+    print(f"Dispensing beer on to train")
+    mqtt.send_msg(f"{hopper_uid}/+/dispense", str(0))
+    mqtt.wait_msg(f"{hopper_uid}/+/dispense", 20, "done")
+    time.sleep(1)
+
+    print(f"Train is delivering")
+    #Find a route to destionation
+    steps_to_destination = 2
+
+    #Goto destination
+    move_train(train_uid, steps_to_destination)
 
 commands = {
     "help": (cmd_help, "Prints this help"),
     "exit": (cmd_exit, "Exits the program"),
-    "echo": (cmd_echo, "Echos back paramters for testing"),
-    #"sub":  (cmd_mqtt_sub, "Subscribe to MQTT topic"),
-    #"unsub":  (cmd_mqtt_unsub, "Unsubscribe from MQTT topic"),
     "pub":  (cmd_mqtt_pub, "Publish to MQTT topic"),
     "ping": (cmd_mqtt_ping, "Test connection to device"),
     "write": (cmd_write_file, "Write file to a device"),
     "read" : (cmd_read_file, "Read file from device"),
+    "kaljaa" : (cmd_kaljaa, "Get a beer"),
     "add" : (cmd_add_device, "Add temporary device ID"),
     "list": (cmd_list, "List all devices"),
 }
