@@ -28,6 +28,15 @@ class mqtt:
     def add_device(self, uid, func, name):
         self.devices.update({uid: device(func,name)})
 
+    def _replace_topic_wildcards(self, topic):
+        parts = topic.split("/")
+        uid = parts[0]
+
+        if parts[1] == "+":
+            parts[1] = self.devices[uid].func
+
+        return "/".join(parts)            
+
     def gen_topic_list(self, uid=None, name=None, topic=None):
         t = []
         topic = "/" + topic if topic else ""
@@ -55,6 +64,7 @@ class mqtt:
             return f"{uid}/{name}{topic}"
 
     def send_msg(self, topic, msg):
+        topic = self._replace_topic_wildcards(topic)
         log.debug(topic, msg)
         self.mqtt.publish(topic, msg)
 
@@ -70,6 +80,7 @@ class mqtt:
             reply = message.payload
             done = True
 
+        topic = self._replace_topic_wildcards(topic)
         self.mqtt.subscribe(topic)
         self.mqtt.message_callback_add(topic, __wait_callback)
 

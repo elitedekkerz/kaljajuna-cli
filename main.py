@@ -74,9 +74,7 @@ def cmd_mqtt_ping(params):
 
     def ping(uid):
         try:
-            t = mqtt.gen_topic(uid=uid, name="sys", topic="ping")
-            r = mqtt.gen_topic(uid=uid, name="sys", topic="pong")
-            mqtt.send_and_wait(t, "", r)
+            mqtt.send_and_wait(f"{uid}/sys/ping", "", f"{uid}/sys/pong")
             print(f"{uid} OK")
         except TimeoutError:
             print(f"{uid} Timeout")
@@ -98,12 +96,9 @@ def cmd_write_file(params):
         try:
             with open(local, "r") as f:
                 data = f.read()
-
-            f = mqtt.gen_topic(uid=uid, name="sys", topic="file")
-            w = mqtt.gen_topic(uid=uid, name="sys", topic="write")
-            r = mqtt.gen_topic(uid=uid, name="sys", topic="resp")
-            mqtt.send_msg(f, remote)
-            mqtt.send_and_wait(w, data, r)
+                
+            mqtt.send_msg(f"{uid}/sys/file", remote)
+            mqtt.send_and_wait(f"{uid}/sys/write", data, f"{uid}/sys/resp")
 
             print(f"{uid} OK")
         except TimeoutError:
@@ -122,11 +117,8 @@ def cmd_read_file(params):
 
     def read_file(uid, local, remote):
         try:
-            f = mqtt.gen_topic(uid=uid, name="sys", topic="file")
-            w = mqtt.gen_topic(uid=uid, name="sys", topic="read")
-            r = mqtt.gen_topic(uid=uid, name="sys", topic="resp")
-            mqtt.send_msg(f, remote)
-            data = mqtt.send_and_wait(w, "", r)
+            mqtt.send_msg(f"{uid}/sys/file", remote)
+            data = mqtt.send_and_wait(f"{uid}/sys/read", "", f"{uid}/sys/resp")
 
             with open(local, "w") as f:
                 f.write(data)
