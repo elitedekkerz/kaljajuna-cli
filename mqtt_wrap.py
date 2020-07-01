@@ -29,6 +29,9 @@ class mqtt:
     def add_device(self, uid, func, name):
         self.devices.update({uid: device(func,name)})
 
+    def get_device_name(self, uid):
+        return self.devices[uid].name
+
     def _replace_topic_wildcards(self, topic):
         parts = topic.split("/")
         uid = parts[0]
