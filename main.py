@@ -1,6 +1,18 @@
+"""Kaljajuna CLI
+Usage:
+  main.py [options] [<command>]
+
+Options:
+  --file=<file>             Run commans form a line
+  --mqtt=<ip>               MQTT ip [default: 10.0.0.10]   
+
+
+"""
+
 import sys
 import shlex
 import mqtt_wrap
+import docopt
 from prompt_toolkit import PromptSession
 
 mqtt = None
@@ -154,21 +166,22 @@ def run_commad(cmd):
 
 
 if __name__ == "__main__":
-    #mqtt = mqtt_wrap.mqtt("localhost")
-    mqtt = mqtt_wrap.mqtt("10.0.0.10")
+    args = docopt.docopt(__doc__)
+    print(args)
 
-    if len(sys.argv) == 1:
+    #mqtt = mqtt_wrap.mqtt("localhost")
+    mqtt = mqtt_wrap.mqtt(args["--mqtt"])
+
+    if args["<command>"]:
+        print(f"Running command {args['<command>']}")
+        run_commad(args["<command>"])
+
+    else:
         p = PromptSession()
 
         while not exit_program:
             cmd = p.prompt("> ")
             run_commad(cmd)
-    else:
-        cmd = sys.argv[1]
-        args = sys.argv[2:]
-        print(f"Running command {cmd} {args}")
-        commands[cmd][0](args)
-
 
     print("Bye")
 
