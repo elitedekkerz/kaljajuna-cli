@@ -104,7 +104,3 @@ class mqtt:
             self.send_msg(a[0], msg)
             response.append(self.wait_msg(a[1], timeout))
         return response
-
-    def send_and_wait(self, topic, msg, resp_topic, timeout=1):
-        self.send_msg(topic, msg)
-        return self.wait_msg(resp_topic, timeout)

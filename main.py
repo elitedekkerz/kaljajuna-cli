@@ -74,7 +74,8 @@ def cmd_mqtt_ping(params):
 
     def ping(uid):
         try:
-            mqtt.send_and_wait(f"{uid}/sys/ping", "", f"{uid}/sys/pong")
+            mqtt.send_msg(f"{uid}/sys/ping", "")
+            mqtt.wait_msg(f"{uid}/sys/pong")
             print(f"{uid} OK")
         except TimeoutError:
             print(f"{uid} Timeout")
@@ -96,9 +97,10 @@ def cmd_write_file(params):
         try:
             with open(local, "r") as f:
                 data = f.read()
-                
+
             mqtt.send_msg(f"{uid}/sys/file", remote)
-            mqtt.send_and_wait(f"{uid}/sys/write", data, f"{uid}/sys/resp")
+            mqtt.send_msg(f"{uid}/sys/write", data)
+            mqtt.wait_msg(f"{uid}/sys/resp")
 
             print(f"{uid} OK")
         except TimeoutError:
@@ -118,7 +120,8 @@ def cmd_read_file(params):
     def read_file(uid, local, remote):
         try:
             mqtt.send_msg(f"{uid}/sys/file", remote)
-            data = mqtt.send_and_wait(f"{uid}/sys/read", "", f"{uid}/sys/resp")
+            mqtt.send_msg(f"{uid}/sys/read", "")
+            data = mqtt.wait_msg(f"{uid}/sys/resp")
 
             with open(local, "w") as f:
                 f.write(data)
